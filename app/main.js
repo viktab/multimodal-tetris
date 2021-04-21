@@ -41,7 +41,7 @@ Leap.loop({ frame: function(frame) {
     selectedTile = getIntersectingTile(translatedCursor);
     if (selectedTile) {
       highlightTile(selectedTile, Colors.GREEN);
-      if (!piece.collides(playerBoard, selectedTile)) {
+      if (!piece.collides(playerBoard, selectedTile, undefined)) {
         piece.setScreenPosition(selectedTile);
       } else {
         piece.setScreenPosition(piece.getScreenPosition());
@@ -77,7 +77,7 @@ var processSpeech = function(transcript) {
 
   let rotation = turn - turnBack + flip;
   if (rotation != 0) {
-    piece.rotate(rotation);
+    piece.rotate(playerBoard, rotation);
     processed = true;
   }
 

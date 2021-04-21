@@ -37,19 +37,22 @@ var Piece = Backbone.Model.extend({
     return this.get('color');
   },
 
-  rotate: function(turns) {
+  rotate: function(board, turns) {
     var rotation = this.get('rotation');
     rotation += turns;
     let offsets = rotateBlock(this.get('shape'), rotation);
-    this.set('offsets', offsets);
-    this.set('rotation', rotation);
-    this.draw();
+    if (!this.collides(board, this.get('screenPosition'), offsets)) {
+      this.set('offsets', offsets);
+      this.set('rotation', rotation);
+      this.draw();
+    }
   },
 
-  collides: function(board, position) {
+  collides: function(board, position, offsets) {
     var positions = [];
+    offsets = offsets ? offsets : this.get('offsets');
     for (let i = 0; i < 4; i++) { 
-      var offset = this.get('offsets')[i];
+      var offset = offsets[i];
       var pos = [position.col + offset[0], position.row + offset[1]];
       positions.push(pos)
     }
