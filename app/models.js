@@ -10,11 +10,12 @@ var Cursor = Backbone.Model.extend({
 var Piece = Backbone.Model.extend({
   defaults: {
     offsets: [],
-    color: Colors.ORANGE,
   }, 
 
   initialize: function(shape) {
     this.set('shape', shape);
+    let color = getShapeColor(shape);
+    this.set('color', color);
     let offsets = getShapeCoordinates(shape);
     this.set('offsets', offsets);
     var topOffsets = offsets.map(function(elt) { return elt[1]; });

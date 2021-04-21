@@ -39,11 +39,46 @@ var getIntersectingTile = function(screenPosition) {
   }
 };
 
+var makePiece = function() {
+  let shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  return new Piece(shape);
+}
+
 var getShapeCoordinates = function(shape) {
   if (shape == "L") {
     return [[0, -1], [0, 0], [0, 1], [1, 1]];
+  } else if (shape == "J") {
+    return [[0, -1], [0, 0], [0, 1], [-1, 1]];
+  } else if (shape == "T") {
+    return [[-1, 0], [0, 0], [1, 0], [0, -1]];
+  } else if (shape == "I") {
+    return [[0, -1], [0, 0], [0, 1], [0, 2]];
+  } else if (shape == "O") {
+    return [[-1, 0], [0, 0], [0, 1], [-1, 1]];
+  } else if (shape == "Z") {
+    return [[-1, 0], [0, 0], [0, 1], [1, 1]];
+  } else {
+    return [[1, 0], [0, 0], [0, 1], [-1, 1]];
   }
 };
+
+var getShapeColor = function(shape) {
+  if (shape == "L") {
+    return Colors.ORANGE;
+  } else if (shape == "J") {
+    return Colors.BLUE;
+  } else if (shape == "T") {
+    return Colors.PURPLE;
+  } else if (shape == "I") {
+    return Colors.CYAN;
+  } else if (shape == "O") {
+    return Colors.YELLOW;
+  } else if (shape == "Z") {
+    return Colors.RED;
+  } else {
+    return Colors.GREEN;
+  }
+}
 
 var rotateBlock = function(shape, rotation) {
   rotation = rotation % 4;
@@ -57,6 +92,46 @@ var rotateBlock = function(shape, rotation) {
     } else {
       return [[-1, 0], [0, 0], [1, 0], [1, -1]];
     }
+  } else if (shape == "J") {
+    if (rotation == 0) {
+      return [[0, -1], [0, 0], [0, 1], [-1, 1]];
+    } else if (rotation == 1) {
+      return [[1, 0], [0, 0], [-1, 0], [-1, -1]];
+    } else if (rotation == 2) {
+      return [[0, 1], [0, 0], [0, -1], [1, -1]];
+    } else {
+      return [[-1, 0], [0, 0], [1, 0], [1, 1]];
+    }
+  } else if (shape == "T") {
+    if (rotation == 0) {
+      return [[-1, 0], [0, 0], [1, 0], [0, -1]];
+    } else if (rotation == 1) {
+      return [[0, -1], [0, 0], [0, 1], [-1, 0]];
+    } else if (rotation == 2) {
+      return [[-1, 0], [0, 0], [1, 0], [0, 1]];
+    } else {
+      return [[0, -1], [0, 0], [0, 1], [1, 0]];
+    }
+  } else if (shape == "I") {
+    if (rotation == 0 || rotation == 2) {
+      return [[0, -1], [0, 0], [0, 1], [0, 2]];
+    } else {
+      return [[-1, 0], [0, 0], [1, 0], [2, 0]];
+    }
+  } else if (shape == "Z") {
+    if (rotation == 0 || rotation == 2) {
+      return [[-1, 0], [0, 0], [0, 1], [1, 1]];
+    } else {
+      return [[0, 1], [0, 0], [1, 0], [1, -1]];
+    }
+  } else if (shape == "S") {
+    if (rotation == 0 || rotation == 2) {
+      return [[1, 0], [0, 0], [0, 1], [-1, 1]];
+    } else {
+      return [[0, 1], [0, 0], [-1, 0], [-1, -1]];
+    }
+  } else {
+    return [[-1, 0], [0, 0], [0, 1], [-1, 1]];
   }
 }
 

@@ -2,10 +2,14 @@
 
 var Colors = {
   GREY: "#AAAAAA",  // default tile color
-  GREEN: "#7CD3A2", // highlighting
-  RED: "#FA5C4F",   // hits
-  YELLOW: "#FAF36F",// misses
-  ORANGE: "#ED9418",//L
+  WHITE: "#FFFFFF", // highlighting
+  GREEN: "#7CD3A2", // S
+  RED: "#FA5C4F",   // Z
+  YELLOW: "#FAF36F",// O
+  ORANGE: "#ED9418",// L
+  BLUE: "#1100FF",  // J
+  CYAN: "#00FFFF",  // I
+  PURPLE: "#8000FF",// T
 };
 var ROWNAMES = ["A", "B", "C", "D", "E", "F", "G", "H"];
 var COLNAMES = ["1", "2", "3", "4", "5", "6", "7", "8"];
@@ -23,4 +27,5 @@ var LEAPSCALE = 0.6;
 var DEBUGSPEECH = true;
 var SKIPSETUP = false;
 
+var SHAPES = ["L", "J", "T", "I", "O", "Z", "S"];
 var FALLSPEED = 1000;

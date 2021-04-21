@@ -2,7 +2,7 @@
 var initialState = SKIPSETUP ? "playing" : "setup";
 var playerBoard = new Board();
 var cursor = new Cursor();
-var piece = new Piece("L");
+var piece = makePiece();
 
 // UI SETUP
 setupUserInterface();
@@ -36,7 +36,7 @@ Leap.loop({ frame: function(frame) {
     if (!falling) {
       playerBoard.placePiece(piece);
       playerBoard.draw();
-      piece = new Piece("L");
+      piece = makePiece();
     }
   }
 
@@ -54,7 +54,7 @@ Leap.loop({ frame: function(frame) {
     // Get the tile that the player is currently selecting, and highlight it
     selectedTile = getIntersectingTile(translatedCursor);
     if (selectedTile) {
-      highlightTile(selectedTile, Colors.GREEN);
+      highlightTile(selectedTile, Colors.WHITE);
       if (!piece.collides(playerBoard, selectedTile, undefined)) {
         piece.setScreenPosition(selectedTile);
       } else {
@@ -98,4 +98,3 @@ var processSpeech = function(transcript) {
 
   return processed;
 };
-
