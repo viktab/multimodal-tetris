@@ -106,11 +106,11 @@ var rotateBlock = function(shape, rotation) {
     if (rotation == 0) {
       return [[-1, 0], [0, 0], [1, 0], [0, -1]];
     } else if (rotation == 1) {
-      return [[0, -1], [0, 0], [0, 1], [-1, 0]];
+      return [[0, -1], [0, 0], [0, 1], [1, 0]];
     } else if (rotation == 2) {
       return [[-1, 0], [0, 0], [1, 0], [0, 1]];
     } else {
-      return [[0, -1], [0, 0], [0, 1], [1, 0]];
+      return [[0, -1], [0, 0], [0, 1], [-1, 0]];
     }
   } else if (shape == "I") {
     if (rotation == 0 || rotation == 2) {

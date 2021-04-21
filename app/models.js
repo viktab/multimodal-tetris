@@ -114,11 +114,9 @@ var Board = Backbone.Model.extend({
     let grid = this.get('grid');
     for (let i = 0; i < NUMCOLS*NUMROWS; i++) {
       let color = grid[i];
-      if (color != Colors.GREY) {
-        let row = Math.floor(i / NUMCOLS);
-        let col = i % NUMCOLS;
-        highlightTile({row: row, col: col}, color);
-      }
+      let row = Math.floor(i / NUMCOLS);
+      let col = i % NUMCOLS;
+      highlightTile({row: row, col: col}, color);
     }
   },
 
@@ -137,7 +135,19 @@ var Board = Backbone.Model.extend({
   },
 
   checkRows: function() {
-    return false;
+    let grid = this.get('grid');
+    var full = [];
+    for (let row = 0; row < NUMROWS; row++) {
+      let gridRow = grid.slice(row*NUMCOLS, row*NUMCOLS + NUMCOLS);
+      if (gridRow.indexOf(Colors.GREY) == -1 && gridRow.indexOf(Colors.WHITE) == -1) {
+        full.push(row);
+      }
+    }
+    if (full.length > 0) {
+      for(let row of full) {
+        this.deleteRow(row);
+      }
+    }
   },
 
   deleteRow: function(row) {

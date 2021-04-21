@@ -35,6 +35,7 @@ Leap.loop({ frame: function(frame) {
     start = now;
     if (!falling) {
       playerBoard.placePiece(piece);
+      playerBoard.checkRows();
       playerBoard.draw();
       piece = makePiece();
     }
