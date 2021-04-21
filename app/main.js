@@ -26,12 +26,18 @@ var grabbingHistory = [];
 // Called every time the Leap provides a new frame of data
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
-  unhighlightTiles();
+  piece.unhighlightTiles();
+  if (selectedTile) highlightTile(selectedTile, Colors.GREY);
 
   let now = Date.now();
   if (now - start >= FALLSPEED) {
-    piece.fall(playerBoard);
+    var falling = piece.fall(playerBoard);
     start = now;
+    if (!falling) {
+      playerBoard.placePiece(piece);
+      playerBoard.draw();
+      piece = new Piece("L");
+    }
   }
 
   var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
@@ -85,6 +91,7 @@ var processSpeech = function(transcript) {
 
   let rotation = turn - turnBack + flip;
   if (rotation != 0) {
+    piece.unhighlightTiles();
     piece.rotate(playerBoard, rotation);
     processed = true;
   }

@@ -19,7 +19,7 @@ var Piece = Backbone.Model.extend({
     this.set('offsets', offsets);
     var topOffsets = offsets.map(function(elt) { return elt[1]; });
     var topOffset = Math.min.apply(null, topOffsets);
-    this.set('screenPosition', {row: -topOffset, col: 5}); // fix
+    this.set('screenPosition', {row: -topOffset, col: 5});
     this.set('rotation', 0);
   },
 
@@ -86,6 +86,14 @@ var Piece = Backbone.Model.extend({
       var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
       highlightTile(tile, this.get('color'));
     }
+  },
+
+  unhighlightTiles: function() {
+    for (let i = 0; i < 4; i++) {
+      var offset = this.get('offsets')[i];
+      var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
+      highlightTile(tile, Colors.GREY);
+    }
   }
 })
 
@@ -93,6 +101,18 @@ var Board = Backbone.Model.extend({
 
   initialize: function() {
     this.set('grid', new Array(NUMROWS*NUMCOLS).fill(Colors.GREY));
+  },
+
+  draw: function() {
+    let grid = this.get('grid');
+    for (let i = 0; i < NUMCOLS*NUMROWS; i++) {
+      let color = grid[i];
+      if (color != Colors.GREY) {
+        let row = Math.floor(i / NUMCOLS);
+        let col = i % NUMCOLS;
+        highlightTile({row: row, col: col}, color);
+      }
+    }
   },
 
   placePiece: function(piece) {
