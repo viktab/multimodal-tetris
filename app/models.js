@@ -17,7 +17,9 @@ var Piece = Backbone.Model.extend({
     this.set('shape', shape);
     let offsets = getShapeCoordinates(shape);
     this.set('offsets', offsets);
-    this.set('screenPosition', {row: 10, col: 5});
+    var topOffsets = offsets.map(function(elt) { return elt[1]; });
+    var topOffset = Math.min.apply(null, topOffsets);
+    this.set('screenPosition', {row: -topOffset, col: 5}); // fix
     this.set('rotation', 0);
   },
 
@@ -35,6 +37,16 @@ var Piece = Backbone.Model.extend({
 
   getColor: function() {
     return this.get('color');
+  },
+
+  fall: function(board) {
+    var oldPosition = this.get('screenPosition');
+    var newPosition = {row: oldPosition.row + 1, col: oldPosition.col};
+    if (!this.collides(board, newPosition, this.get('offsets'))) {
+      this.set('screenPosition', newPosition);
+      this.draw();
+      return true;
+    } else return false;
   },
 
   rotate: function(board, turns) {

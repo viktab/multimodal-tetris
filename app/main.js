@@ -10,6 +10,8 @@ setupUserInterface();
 // selectedTile: The tile that the player is currently hovering above
 var selectedTile = false;
 
+var start = Date.now();
+
 // grabbedShip/Offset: The ship and offset if player is currently manipulating a ship
 var grabbedShip = false;
 var grabbedOffset = [0, 0];
@@ -25,6 +27,12 @@ var grabbingHistory = [];
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
   unhighlightTiles();
+
+  let now = Date.now();
+  if (now - start >= FALLSPEED) {
+    piece.fall(playerBoard);
+    start = now;
+  }
 
   var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
 
