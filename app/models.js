@@ -95,6 +95,21 @@ var Piece = Backbone.Model.extend({
       var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
       highlightTile(tile, Colors.GREY);
     }
+  },
+
+  drop: function(board) {
+    var collided = false;
+    var pos = this.get('screenPosition');
+    while (!collided) {
+      newPos = {row: pos.row + 1, col: pos.col};
+      if (!this.collides(board, newPos, this.get('offsets'))) {
+        pos = newPos;
+      } else {
+        collided = true;
+      }
+    }
+    this.set('screenPosition', pos);
+    this.draw();
   }
 })
 

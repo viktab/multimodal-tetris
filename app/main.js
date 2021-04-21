@@ -97,5 +97,13 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
+  if (userSaid(transcript.toLowerCase(), ["drop", "down"])) {
+    piece.drop(playerBoard);
+    playerBoard.placePiece(piece);
+    playerBoard.checkRows();
+    playerBoard.draw();
+    piece = makePiece();
+  }
+
   return processed;
 };
