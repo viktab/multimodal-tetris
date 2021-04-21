@@ -16,12 +16,15 @@ var Piece = Backbone.Model.extend({
     this.set('shape', shape);
     let color = getShapeColor(shape);
     this.set('color', color);
+    let shadow = getShapeShadow(shape);
+    this.set('shadow', shadow);
     let offsets = getShapeCoordinates(shape);
     this.set('offsets', offsets);
     var topOffsets = offsets.map(function(elt) { return elt[1]; });
     var topOffset = Math.min.apply(null, topOffsets);
     this.set('screenPosition', {row: -topOffset, col: 5});
     this.set('rotation', 0);
+    this.set('shadowTiles', [])
   },
 
   setScreenPosition: function(position) {
@@ -38,6 +41,27 @@ var Piece = Backbone.Model.extend({
 
   getColor: function() {
     return this.get('color');
+  },
+
+  drawShadow: function(board) {
+    var collided = false;
+    var pos = this.get('screenPosition');
+    while (!collided) {
+      newPos = {row: pos.row + 1, col: pos.col};
+      if (!this.collides(board, newPos, this.get('offsets'))) {
+        pos = newPos;
+      } else {
+        collided = true;
+      }
+    }
+    let shadowTiles = [];
+    for (let i = 0; i < 4; i++) {
+      var offset = this.get('offsets')[i];
+      var tile = {row: pos.row + offset[1], col: pos.col + offset[0]};
+      highlightTile(tile, this.get('shadow'));
+      shadowTiles.push(tile);
+    }
+    this.set('shadowTiles', shadowTiles);
   },
 
   fall: function(board) {
@@ -94,6 +118,9 @@ var Piece = Backbone.Model.extend({
       var offset = this.get('offsets')[i];
       var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
       highlightTile(tile, Colors.GREY);
+    }
+    for (shadowTile of this.get('shadowTiles')) {
+      highlightTile(shadowTile, Colors.GREY);
     }
   },
 

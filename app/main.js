@@ -63,6 +63,7 @@ Leap.loop({ frame: function(frame) {
       }
     }
   }
+  piece.drawShadow(playerBoard);
   piece.draw();
 
   background.setContent("<h1>tetris</h1>");
