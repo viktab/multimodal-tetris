@@ -11,6 +11,7 @@ setupUserInterface();
 var selectedTile = false;
 
 var start = Date.now();
+var score = 0;
 
 // grabbedShip/Offset: The ship and offset if player is currently manipulating a ship
 var grabbedShip = false;
@@ -35,7 +36,8 @@ Leap.loop({ frame: function(frame) {
     start = now;
     if (!falling) {
       playerBoard.placePiece(piece);
-      playerBoard.checkRows();
+      let rows = playerBoard.checkRows();
+      score += rows;
       playerBoard.draw();
       piece = makePiece();
     }
@@ -66,7 +68,8 @@ Leap.loop({ frame: function(frame) {
   piece.drawShadow(playerBoard);
   piece.draw();
 
-  background.setContent("<h1>tetris</h1>");
+  let content = "<h1>multimodal tetris</h1><h3>lines cleared: " + score + "</h3>";
+  background.setContent(content);
 }}).use('screenPosition', {scale: LEAPSCALE});
 
 // processSpeech(transcript)
@@ -101,7 +104,8 @@ var processSpeech = function(transcript) {
   if (userSaid(transcript.toLowerCase(), ["drop", "down"])) {
     piece.drop(playerBoard);
     playerBoard.placePiece(piece);
-    playerBoard.checkRows();
+    let rows = playerBoard.checkRows();
+    score += rows;
     playerBoard.draw();
     piece = makePiece();
   }

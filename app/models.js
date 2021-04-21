@@ -190,6 +190,7 @@ var Board = Backbone.Model.extend({
         this.deleteRow(row);
       }
     }
+    return full.length;
   },
 
   deleteRow: function(row) {
