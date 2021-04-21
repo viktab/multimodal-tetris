@@ -104,6 +104,12 @@ var Board = Backbone.Model.extend({
     this.set('grid', new Array(NUMROWS*NUMCOLS).fill(Colors.GREY));
   },
 
+  getColor: function(position) {
+    let grid = this.get('grid');
+    let index = position.row*NUMCOLS + position.col;
+    return grid[index];
+  },
+
   draw: function() {
     let grid = this.get('grid');
     for (let i = 0; i < NUMCOLS*NUMROWS; i++) {
@@ -160,7 +166,8 @@ var Board = Backbone.Model.extend({
 
   hasBlock: function(position) {
     let grid = this.get('grid');
-    return (grid[position[1]*NUMCOLS + position[0]] != Colors.GREY);
+    return (grid[position[1]*NUMCOLS + position[0]] != Colors.GREY && 
+            grid[position[1]*NUMCOLS + position[0]] != Colors.WHITE);
   },
 
   resetBoard: function() {

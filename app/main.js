@@ -27,7 +27,7 @@ var grabbingHistory = [];
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
   piece.unhighlightTiles();
-  if (selectedTile) highlightTile(selectedTile, Colors.GREY);
+  if (selectedTile) unhighlightTile(selectedTile, playerBoard);
 
   let now = Date.now();
   if (now - start >= FALLSPEED) {

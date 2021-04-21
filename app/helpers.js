@@ -152,6 +152,14 @@ var highlightTile = function(position, color) {
   tiles[position.row*NUMCOLS + position.col].setProperties({backgroundColor: color});
 };
 
+var unhighlightTile = function(position, board) {
+  if (!board.hasBlock([position.col, position.row])) 
+  tiles[position.row*NUMCOLS + position.col].setProperties({backgroundColor: Colors.GREY});
+  else {
+    tiles[position.row*NUMCOLS + position.col].setProperties({backgroundColor: board.getColor(position)});
+  }
+};
+
 // unblinkTiles()
 //    Clears all blinking from the tiles
 var unblinkTiles = function() {
@@ -169,47 +177,4 @@ var blinkTile = function(position) {
     angle += 0.1;
     return Math.cos(angle);
   });
-};
-
-// nextTurn()
-//    Moves the game state to the next turn after TURNDELAY ms
-var nextTurn = function() {
-  // setTimeout(gameState.nextTurn, TURNDELAY);
-};
-
-// placeShip(ship)
-//    Deploys a ship to the player board, based on its current screen position
-var placeShip = function(ship) {
-  // First, snap rotation to vert / horiz
-  ship.snapRotation();
-
-  // Get the ship origin
-  var screenOrigin = ship.getScreenOrigin();
-  // this seems to mistakenly think that ships near the edge are out of bounds??
-  screenOrigin[0] += TILESIZE / 2;
-  screenOrigin[1] += TILESIZE / 2;
-
-  // Find the ship's origin in board coordinates
-  var boardPosition = getIntersectingTile(screenOrigin); 
-  if (!boardPosition) {
-    ship.resetShip();
-    return;
-  }
-  ship.setBoardPosition(boardPosition);
-
-  // Snap to grid
-  var snappedPosition = getSnappedScreenPosition(boardPosition);
-  ship.setScreenPosition(snappedPosition);
-  
-  // Try deploying ship
-  var success = playerBoard.deployShip(ship);
-  if (! success)
-    ship.resetShip();
-};
-
-var getSnappedScreenPosition = function(boardPosition) {
-  var screenPosition = gridOrigin.slice(0);
-  screenPosition[0] += boardPosition.col * TILESIZE;
-  screenPosition[1] += boardPosition.row * TILESIZE;
-  return screenPosition;
 };
