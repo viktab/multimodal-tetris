@@ -217,6 +217,25 @@ var Board = Backbone.Model.extend({
     this.set('grid', newGrid);
   },
 
+  lost: function() {
+    var grid = this.get('grid');
+    for (let i = 0; i < NUMCOLS; i++) {
+      if (grid[i] != Colors.GREY) {
+        return true;
+      }
+    }
+    return false;
+  },
+
+  clear: function() {
+    this.set('grid', new Array(NUMROWS*NUMCOLS).fill(Colors.GREY));
+    for (let row = 0; row < NUMROWS; row++) {
+      for (let col = 0; col < NUMCOLS; col++) {
+        highlightTile({row: row, col: col}, Colors.GREY);
+      }
+    }
+  }, 
+
   hasBlock: function(position) {
     let grid = this.get('grid');
     return (grid[position[1]*NUMCOLS + position[0]] != Colors.GREY && 

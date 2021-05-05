@@ -13,15 +13,14 @@ var selectedTile = false;
 var start = Date.now();
 var score = 0;
 
+var lastDrop = Date.now();
+
 // grabbedShip/Offset: The ship and offset if player is currently manipulating a ship
 var grabbedShip = false;
 var grabbedOffset = [0, 0];
 var rollOffset = 0;
 
-// isGrabbing: Is the player's hand currently in a grabbing pose
-var isGrabbing = false;
-
-var grabbingHistory = [];
+var playing = true;
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
@@ -36,10 +35,17 @@ Leap.loop({ frame: function(frame) {
     start = now;
     if (!falling) {
       playerBoard.placePiece(piece);
-      let rows = playerBoard.checkRows();
-      score += rows;
-      playerBoard.draw();
-      piece = makePiece();
+      if (playerBoard.lost()) {
+        playerBoard.clear();
+        playing = false;
+        // askPlayAgain();
+      } else {
+        let rows = playerBoard.checkRows();
+        updateSpeed(score, rows);
+        score += rows;
+        playerBoard.draw();
+        piece = makePiece();
+      }
     }
   }
 
@@ -102,12 +108,18 @@ var processSpeech = function(transcript) {
   }
 
   if (userSaid(transcript.toLowerCase(), ["drop", "down"])) {
-    piece.drop(playerBoard);
-    playerBoard.placePiece(piece);
-    let rows = playerBoard.checkRows();
-    score += rows;
-    playerBoard.draw();
-    piece = makePiece();
+    console.log("dropping?");
+    let now = Date.now();
+    if ((now - lastDrop) >= 1000) {
+      piece.drop(playerBoard);
+      playerBoard.placePiece(piece);
+      let rows = playerBoard.checkRows();
+      updateSpeed(score, rows);
+      score += rows;
+      playerBoard.draw();
+      piece = makePiece();
+      lastDrop = Date.now();
+    }
   }
 
   return processed;

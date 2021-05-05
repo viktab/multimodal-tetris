@@ -178,21 +178,11 @@ var unhighlightTile = function(position, board) {
   }
 };
 
-// unblinkTiles()
-//    Clears all blinking from the tiles
-var unblinkTiles = function() {
-  tileModifiers.forEach(function(modifier) {
-    modifier.opacityFrom(1);
-  });
-};
-
-// blinkTile(position)
-//    Causes a tile to blink
-// Input: position = {row: r, col: c}, tilePosition
-var blinkTile = function(position) {
-  var angle = 0;
-  tileModifiers[position.row*NUMCOLS + position.col].opacityFrom(function() {
-    angle += 0.1;
-    return Math.cos(angle);
-  });
-};
+var updateSpeed = function(score, rows) {
+  for (let i = 1; i < rows; i++) {
+    if ((score + i) % 5 == 0) {
+      FALLSPEED /= 0.9;
+      console.log(FALLSPEED);
+    } 
+  }
+}
