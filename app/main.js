@@ -14,13 +14,10 @@ var start = Date.now();
 var score = 0;
 
 var lastDrop = Date.now();
+var lastSwipe = Date.now();
+var pointPositions = [];
 
-// grabbedShip/Offset: The ship and offset if player is currently manipulating a ship
-var grabbedShip = false;
-var grabbedOffset = [0, 0];
-var rollOffset = 0;
-
-var playing = true;
+var playing = false;
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
@@ -42,6 +39,28 @@ Leap.loop({ frame: function(frame) {
       cursor.setScreenPosition(translatedCursor);
     }
   } else { // gameplay logic
+
+    // check swipes
+    if (translatedCursor) {
+      pointPositions.push(translatedCursor[1]);
+      if (pointPositions.length > 7) {
+        pointPositions.shift();
+        if ((pointPositions[0] - pointPositions[6]) > 100) {
+          let now = Date.now();
+          if ((now - lastSwipe) >= 200) {
+            piece.unhighlightTiles();
+            piece.rotate(playerBoard, 1);
+            lastSwipe = now;
+          }
+        } else if ((pointPositions[6] - pointPositions[0]) > 150) { // need a higher threshold for dropping bc scary
+          tryDrop();
+        }
+      }
+    } else { // finger left motion sensor so reset the list
+      pointPositions = [];
+    }
+
+    // move block down every FALLSPEED milliseconds
     let now = Date.now();
     if (now - start >= FALLSPEED) {
       var falling = piece.fall(playerBoard);
@@ -65,7 +84,7 @@ Leap.loop({ frame: function(frame) {
     if (translatedCursor) {
       cursor.setScreenPosition(translatedCursor);
   
-      // Get the tile that the player is currently selecting, and highlight it
+      // Get the tile that the player is currently selecting, highlight it and move the block
       selectedTile = getIntersectingTile(translatedCursor);
       if (selectedTile) {
         highlightTile(selectedTile, Colors.WHITE);
@@ -113,22 +132,53 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
+  if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"])) {
+    playing = true;
+    processed = true;
+  }
+
   if (userSaid(transcript.toLowerCase(), ["drop", "down"])) {
-    console.log("dropping?");
-    let now = Date.now();
-    if ((now - lastDrop) >= 1000) {
-      piece.drop(playerBoard);
-      playerBoard.placePiece(piece);
-      let rows = playerBoard.checkRows();
-      updateSpeed(score, rows);
-      score += rows;
-      playerBoard.draw();
-      piece = makePiece();
-      lastDrop = Date.now();
+    tryDrop();
+    processed = true;
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["yes", "sure", "ok", "yeah", "yep", "please", "okay"])) {
+    if (!playing) {
+      playerBoard.clear();
+      score = 0;
+      playing = true;
+      processed = true;
+    }
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["no", "nope", "nah", "nada"])) {
+    if (!playing) {
+      generateSpeech("Alright. Thanks for playing!");
+      processed = true;
+    }
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["score", "lines", "points"])) {
+    if (userSaid(transcript.toLowerCase(), ["what", "what's", "many", "much", "please", "tell", "say"])) {
+      generateSpeech("You have cleared " + score + " lines.");
     }
   }
 
   return processed;
+};
+
+var tryDrop = function() {
+  let now = Date.now();
+  if ((now - lastDrop) >= 1000) {
+    piece.drop(playerBoard);
+    playerBoard.placePiece(piece);
+    let rows = playerBoard.checkRows();
+    updateSpeed(score, rows);
+    score += rows;
+    playerBoard.draw();
+    piece = makePiece();
+    lastDrop = Date.now();
+  }
 };
 
 var askPlayAgain = function() {
