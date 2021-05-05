@@ -28,6 +28,7 @@ var Piece = Backbone.Model.extend({
   },
 
   setScreenPosition: function(position) {
+    console.log(position);
     this.set('screenPosition', {row: this.get('screenPosition').row, col: position.col});
   },
 

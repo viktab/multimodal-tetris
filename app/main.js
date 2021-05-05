@@ -18,6 +18,8 @@ var lastSwipe = Date.now();
 var pointPositions = [];
 
 var playing = false;
+var opened = true;
+var tutorial = -1;
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
@@ -98,8 +100,9 @@ Leap.loop({ frame: function(frame) {
     piece.drawShadow(playerBoard);
     piece.draw();
   }
-
-  let content = "<h1>multimodal tetris</h1><h3>lines cleared: " + score + "</h3>";
+  
+  let h3 = opened ? "<h3>Say 'start' to play or 'help' <br> for instructions</h3>" : "<h3>lines cleared: " + score + "</h3>";
+  let content = "<h1>multimodal tetris</h1>" + h3;
   background.setContent(content);
 }}).use('screenPosition', {scale: LEAPSCALE});
 
@@ -133,6 +136,8 @@ var processSpeech = function(transcript) {
   }
 
   if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"])) {
+    console.log("rip");
+    opened = false;
     playing = true;
     processed = true;
   }
@@ -161,6 +166,17 @@ var processSpeech = function(transcript) {
   if (userSaid(transcript.toLowerCase(), ["score", "lines", "points"])) {
     if (userSaid(transcript.toLowerCase(), ["what", "what's", "many", "much", "please", "tell", "say"])) {
       generateSpeech("You have cleared " + score + " lines.");
+    }
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["help"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
+    if (opened) {
+      help = 0;
+      piece.setScreenPosition({row: NUMROWS/2, col: NUMCOLS/2});
+      piece.draw();
+      generateSpeech("To turn clockwise, flick your finger up or say turn. Try this a couple times, and say help to move onto the next step.");
+      let content = "<h1>multimodal tetris</h1><h3>To turn clockwise, flick your <br> finger up or say turn. Try <br> this a couple times, and say <br> help to move onto the next step.</h3>";
+      background.setContent(content);
     }
   }
 
