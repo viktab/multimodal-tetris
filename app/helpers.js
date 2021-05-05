@@ -12,7 +12,7 @@ var generateSpeech = function(message, callback) {
     var msg = new SpeechSynthesisUtterance();
     msg.voice = window.speechSynthesis.getVoices()[VOICEINDEX];
     msg.text = message;
-    msg.rate = 0.2;
+    msg.rate = 1;
     if (typeof callback !== "undefined")
       msg.onend = callback;
     speechSynthesis.speak(msg);

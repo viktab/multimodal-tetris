@@ -29,7 +29,7 @@ var TILESIZE = Math.ceil(BOARDHEIGHT / NUMROWS);
 var CURSORSIZE = 20;
 var TURNDELAY = 2500;
 
-var VOICEINDEX = 17;
+var VOICEINDEX = 2;
 var LEAPSCALE = 0.6;
 var DEBUGSPEECH = true;
 var SKIPSETUP = false;

@@ -26,28 +26,8 @@ var playing = true;
 // Called every time the Leap provides a new frame of data
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
-  piece.unhighlightTiles();
+  if (playing) piece.unhighlightTiles();
   if (selectedTile) unhighlightTile(selectedTile, playerBoard);
-
-  let now = Date.now();
-  if (now - start >= FALLSPEED) {
-    var falling = piece.fall(playerBoard);
-    start = now;
-    if (!falling) {
-      playerBoard.placePiece(piece);
-      if (playerBoard.lost()) {
-        playerBoard.clear();
-        playing = false;
-        // askPlayAgain();
-      } else {
-        let rows = playerBoard.checkRows();
-        updateSpeed(score, rows);
-        score += rows;
-        playerBoard.draw();
-        piece = makePiece();
-      }
-    }
-  }
 
   var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
 
@@ -57,22 +37,48 @@ Leap.loop({ frame: function(frame) {
   var returnVector = Leap.vec3.create();
   var translatedCursor = cursorPosition ? Leap.vec3.add(returnVector, cursorPosition, translateVector) : undefined;
 
-  if (translatedCursor) {
-    cursor.setScreenPosition(translatedCursor);
-
-    // Get the tile that the player is currently selecting, and highlight it
-    selectedTile = getIntersectingTile(translatedCursor);
-    if (selectedTile) {
-      highlightTile(selectedTile, Colors.WHITE);
-      if (!piece.collides(playerBoard, selectedTile, undefined)) {
-        piece.setScreenPosition(selectedTile);
-      } else {
-        piece.setScreenPosition(piece.getScreenPosition());
+  if (!playing) { // only draw the cursor
+    if (translatedCursor) {
+      cursor.setScreenPosition(translatedCursor);
+    }
+  } else { // gameplay logic
+    let now = Date.now();
+    if (now - start >= FALLSPEED) {
+      var falling = piece.fall(playerBoard);
+      start = now;
+      if (!falling) {
+        playerBoard.placePiece(piece);
+        if (playerBoard.lost()) {
+          piece.draw();
+          playing = false;
+          askPlayAgain();
+        } else {
+          let rows = playerBoard.checkRows();
+          updateSpeed(score, rows);
+          score += rows;
+          playerBoard.draw();
+          piece = makePiece();
+        }
       }
     }
+
+    if (translatedCursor) {
+      cursor.setScreenPosition(translatedCursor);
+  
+      // Get the tile that the player is currently selecting, and highlight it
+      selectedTile = getIntersectingTile(translatedCursor);
+      if (selectedTile) {
+        highlightTile(selectedTile, Colors.WHITE);
+        if (!piece.collides(playerBoard, selectedTile, undefined)) {
+          piece.setScreenPosition(selectedTile);
+        } else {
+          piece.setScreenPosition(piece.getScreenPosition());
+        }
+      }
+    }
+    piece.drawShadow(playerBoard);
+    piece.draw();
   }
-  piece.drawShadow(playerBoard);
-  piece.draw();
 
   let content = "<h1>multimodal tetris</h1><h3>lines cleared: " + score + "</h3>";
   background.setContent(content);
@@ -123,4 +129,8 @@ var processSpeech = function(transcript) {
   }
 
   return processed;
+};
+
+var askPlayAgain = function() {
+  generateSpeech("You lost! Would you like to play again?");
 };
