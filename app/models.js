@@ -12,7 +12,7 @@ var Piece = Backbone.Model.extend({
     offsets: [],
   }, 
 
-  initialize: function(shape) {
+  initialize: function(shape, isTutorial) {
     this.set('shape', shape);
     let color = getShapeColor(shape);
     this.set('color', color);
@@ -22,7 +22,10 @@ var Piece = Backbone.Model.extend({
     this.set('offsets', offsets);
     var topOffsets = offsets.map(function(elt) { return elt[1]; });
     var topOffset = Math.min.apply(null, topOffsets);
-    this.set('screenPosition', {row: -topOffset, col: 5});
+    if (isTutorial.val) this.set('screenPosition', {row: NUMROWS/2, col: NUMCOLS/2});
+    else {
+      this.set('screenPosition', {row: -topOffset, col: NUMCOLS/2});
+    }
     this.set('rotation', 0);
     this.set('shadowTiles', [])
   },
@@ -136,6 +139,11 @@ var Piece = Backbone.Model.extend({
       }
     }
     this.set('screenPosition', pos);
+    this.draw();
+  },
+
+  moveUp: function() {
+    this.set('screenPosition', {row: NUMROWS/2, col: this.get('screenPosition').col});
     this.draw();
   }
 })

@@ -2,7 +2,7 @@
 var initialState = SKIPSETUP ? "playing" : "setup";
 var playerBoard = new Board();
 var cursor = new Cursor();
-var piece = makePiece();
+var piece = makePiece(false);
 
 // UI SETUP
 setupUserInterface();
@@ -18,13 +18,16 @@ var lastSwipe = Date.now();
 var pointPositions = [];
 
 var playing = false;
+var opened = true;
+var tutorial = -1;
+
+var content = "";
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
-  if (playing) piece.unhighlightTiles();
-  if (selectedTile) unhighlightTile(selectedTile, playerBoard);
+  if (playing || tutorial > 1) piece.unhighlightTiles();
 
   var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
 
@@ -37,8 +40,65 @@ Leap.loop({ frame: function(frame) {
   if (!playing) { // only draw the cursor
     if (translatedCursor) {
       cursor.setScreenPosition(translatedCursor);
+    } if (tutorial > -1) {
+      // check swipe up for turning tutorial
+      if (translatedCursor) {
+        pointPositions.push(translatedCursor[1]);
+        if (pointPositions.length > 7) {
+          pointPositions.shift();
+          if ((pointPositions[0] - pointPositions[6]) > 100) {
+            let now = Date.now();
+            if ((now - lastSwipe) >= 200) {
+              piece.unhighlightTiles();
+              piece.rotate(playerBoard, 1);
+              lastSwipe = now;
+            }
+          }
+        }
+      } else { // finger left motion sensor so reset the list
+        pointPositions = [];
+      }
+    } if (tutorial > 1) {
+      // allow user to move block side to side for tutorial
+      if (translatedCursor) {
+        cursor.setScreenPosition(translatedCursor);
+    
+        // Get the tile that the player is currently selecting, highlight it and move the block
+        selectedTile = getIntersectingTile(translatedCursor);
+        if (selectedTile) {
+          if (!piece.collides(playerBoard, selectedTile, undefined)) {
+            piece.setScreenPosition(selectedTile);
+          } else {
+            piece.setScreenPosition(piece.getScreenPosition());
+          }
+        }
+      }
+      piece.draw();
+    } if (tutorial > 2) {
+      // move the piece back up if the last drop was over 2 seconds ago
+      if (Date.now() - lastDrop >= 1000) {
+        piece.unhighlightTiles();
+        piece.moveUp();
+      }
+
+      // check swipe down for dropping tutorial
+      if (translatedCursor) {
+        pointPositions.push(translatedCursor[1]);
+        if (pointPositions.length > 7) {
+          pointPositions.shift();
+          if ((pointPositions[6] - pointPositions[0]) > 150) { // need a higher threshold for dropping bc scary
+            if ((Date.now() - lastDrop) >= 1000) {
+              piece.unhighlightTiles();
+              piece.drop(playerBoard);
+              lastDrop = Date.now();
+            }
+          }
+        }
+      } else { // finger left motion sensor so reset the list
+        pointPositions = [];
+      }
     }
-  } else { // gameplay logic
+  }  else { // gameplay logic
 
     // check swipes
     if (translatedCursor) {
@@ -76,7 +136,7 @@ Leap.loop({ frame: function(frame) {
           updateSpeed(score, rows);
           score += rows;
           playerBoard.draw();
-          piece = makePiece();
+          piece = makePiece(false);
         }
       }
     }
@@ -87,7 +147,6 @@ Leap.loop({ frame: function(frame) {
       // Get the tile that the player is currently selecting, highlight it and move the block
       selectedTile = getIntersectingTile(translatedCursor);
       if (selectedTile) {
-        highlightTile(selectedTile, Colors.WHITE);
         if (!piece.collides(playerBoard, selectedTile, undefined)) {
           piece.setScreenPosition(selectedTile);
         } else {
@@ -98,8 +157,11 @@ Leap.loop({ frame: function(frame) {
     piece.drawShadow(playerBoard);
     piece.draw();
   }
-
-  let content = "<h1>multimodal tetris</h1><h3>lines cleared: " + score + "</h3>";
+  
+  if (tutorial == -1) {
+    let h3 = opened ? "<h3>Say 'start' to play or 'help' <br> for instructions</h3>" : "<h3>lines cleared: " + score + "</h3>";
+    content = "<h1>multimodal tetris</h1>" + h3;
+  }
   background.setContent(content);
 }}).use('screenPosition', {scale: LEAPSCALE});
 
@@ -133,6 +195,7 @@ var processSpeech = function(transcript) {
   }
 
   if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"])) {
+    opened = false;
     playing = true;
     processed = true;
   }
@@ -164,6 +227,34 @@ var processSpeech = function(transcript) {
     }
   }
 
+  if (userSaid(transcript.toLowerCase(), ["help"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
+    tutorial += 1;
+    if (tutorial == 0) {
+      piece = makePiece(true);
+      piece.draw();
+      generateSpeech("To turn clockwise, flick your finger up or say turn. Try this a couple times, and say help to move onto the next step.");
+      content = "<h1>multimodal tetris</h1><h3>To turn clockwise, flick your <br> finger up or say turn. Try <br> this a couple times, and say <br> help to move onto the next <br> step.</h3>";
+    } else if (tutorial == 1) {
+      generateSpeech("To turn counter clockwise, say turn back. To turn 180 degrees, say flip. Try these a couple times, and say help to move onto the next step.");
+      content = "<h1>multimodal tetris</h1><h3>To turn counter clockwise, <br> say turn back. To turn 180 <br> degrees, say flip. Try these <br> a couple times, and say help <br> to move onto the next step.</h3>";
+    } else if (tutorial == 2) {
+      generateSpeech("To move your block, point at the position on the screen that you want to move it to. Try this for a bit, and say help to move onto the next step.");
+      content = "<h1>multimodal tetris</h1><h3>To move your block, point <br> at the position on the screen <br> that you want to move it to. <br> Try this for a bit, and say <br> help to move onto the next <br> step.</h3>";
+    } else if (tutorial == 3) {
+      generateSpeech("To drop your block into place, flick your finger down or say drop or down. Try this for a couple times, and say help to move onto the last step.");
+      content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> flick your finger down or say <br> drop or down. Try this a couple <br> times, and say help to move <br> onto the last step.</h3>";
+    } else if (tutorial == 4) {
+      generateSpeech("While you're playing the game, you can ask me 'how mnny lines' and I will tell you your current score. Say exit to go back to the main screen.");
+      content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score. Say exit to go <br> back to the main screen.</h3>";
+    }
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["exit"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
+    piece.unhighlightTiles();
+    tutorial = -1;
+    piece = makePiece(false);
+  }
+
   return processed;
 };
 
@@ -176,7 +267,7 @@ var tryDrop = function() {
     updateSpeed(score, rows);
     score += rows;
     playerBoard.draw();
-    piece = makePiece();
+    piece = makePiece(false);
     lastDrop = Date.now();
   }
 };
