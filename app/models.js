@@ -138,6 +138,11 @@ var Piece = Backbone.Model.extend({
     }
     this.set('screenPosition', pos);
     this.draw();
+  },
+
+  moveUp: function() {
+    this.set('screenPosition', {row: NUMROWS/2, col: this.get('screenPosition').col});
+    this.draw();
   }
 })
 

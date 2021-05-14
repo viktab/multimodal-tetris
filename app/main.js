@@ -74,6 +74,29 @@ Leap.loop({ frame: function(frame) {
         }
       }
       piece.draw();
+    } if (tutorial > 2) {
+      // move the piece back up if the last drop was over 2 seconds ago
+      if (Date.now() - lastDrop >= 1000) {
+        piece.unhighlightTiles();
+        piece.moveUp();
+      }
+
+      // check swipe down for dropping tutorial
+      if (translatedCursor) {
+        pointPositions.push(translatedCursor[1]);
+        if (pointPositions.length > 7) {
+          pointPositions.shift();
+          if ((pointPositions[6] - pointPositions[0]) > 150) { // need a higher threshold for dropping bc scary
+            if ((Date.now() - lastDrop) >= 1000) {
+              piece.unhighlightTiles();
+              piece.drop(playerBoard);
+              lastDrop = Date.now();
+            }
+          }
+        }
+      } else { // finger left motion sensor so reset the list
+        pointPositions = [];
+      }
     }
   }  else { // gameplay logic
 
@@ -217,6 +240,12 @@ var processSpeech = function(transcript) {
     } else if (tutorial == 2) {
       generateSpeech("To move your block, point at the position on the screen that you want to move it to. Try this for a bit, and say help to move onto the next step.");
       content = "<h1>multimodal tetris</h1><h3>To move your block, point <br> at the position on the screen <br> that you want to move it to. <br> Try this for a bit, and say <br> help to move onto the next <br> step.</h3>";
+    } else if (tutorial == 3) {
+      generateSpeech("To drop your block into place, flick your finger down or say drop or down. Try this for a couple times, and say help to move onto the last step.");
+      content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> flick your finger down or say <br> drop or down. Try this a couple <br> times, and say help to move <br> onto the last step.</h3>";
+    } else if (tutorial == 4) {
+      generateSpeech("While you're playing the game, you can ask me 'how mnny lines' and I will tell you your current score. Say exit to go back to the main screen.");
+      content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score. Say exit to go <br> back to the main screen.</h3>";
     }
   }
 
