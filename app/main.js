@@ -249,6 +249,12 @@ var processSpeech = function(transcript) {
     }
   }
 
+  if (userSaid(transcript.toLowerCase(), ["exit"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
+    piece.unhighlightTiles();
+    tutorial = -1;
+    piece = makePiece(false);
+  }
+
   return processed;
 };
 

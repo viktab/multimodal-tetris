@@ -41,7 +41,7 @@ var getIntersectingTile = function(screenPosition) {
 
 var makePiece = function(isTutorial) {
   let shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-  return new Piece(shape, isTutorial);
+  return new Piece(shape, {val: isTutorial});
 }
 
 var getShapeCoordinates = function(shape) {
