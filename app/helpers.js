@@ -39,9 +39,9 @@ var getIntersectingTile = function(screenPosition) {
   }
 };
 
-var makePiece = function() {
+var makePiece = function(isTutorial) {
   let shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
-  return new Piece(shape);
+  return new Piece(shape, isTutorial);
 }
 
 var getShapeCoordinates = function(shape) {
