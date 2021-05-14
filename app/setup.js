@@ -12,13 +12,13 @@ var tiles = [];
 var tileModifiers = [];
 var gridOrigin = [350, 35];
 
-var background, turnFeedback, otherFeedback;
+var background, turnFeedback, otherFeedback, hints;
 
 // USER INTERFACE SETUP
 var setupUserInterface = function() {
   var mainContext = Engine.createContext();
   background = new Surface({
-    content: "<h1>battleship</h1>",
+    content: "<h1>multimodal tetris</h1>",
     properties: {
       backgroundColor: "rgb(34, 34, 34)",
       color: "white"
@@ -74,65 +74,21 @@ var setupUserInterface = function() {
       tileModifiers.push(tileModifier);
     }
   }
-  // ROWNAMES.slice(0,NUMTILES).forEach(function(rowName, row) {
-  //   var label = new Surface({
-  //       content: rowName,
-  //       size: [TILESIZE, TILESIZE],
-  //       properties: {
-  //         textAlign: "center",
-  //         color: "white",
-  //         lineHeight: TILESIZE / 15
-  //       },
-  //   });
-  //   var labelModifier = new StateModifier({
-  //     transform: Transform.translate(gridOrigin[0] - 80, gridOrigin[1] + row*TILESIZE, 0)
-  //   });
-  //   mainContext.add(labelModifier).add(label);
-  // });
-  // COLNAMES.slice(0,NUMTILES).forEach(function(colName, col) {
-  //   var label = new Surface({
-  //       content: colName,
-  //       size: [TILESIZE, TILESIZE],
-  //       properties: {
-  //         textAlign: "center",
-  //         color: "white"
-  //       },
-  //   });
-  //   var labelModifier = new StateModifier({
-  //     transform: Transform.translate(gridOrigin[0] + col*TILESIZE, gridOrigin[1] - 25, 0)
-  //   });
-  //   mainContext.add(labelModifier).add(label);
-  // });
 
-  // Draw the player ships
-  // playerBoard.get('ships').forEach(function(ship) {
-  //   var shipView = new ImageSurface({
-  //       size: [ship.get('length') * TILESIZE, TILESIZE],
-  //       content: 'img/' + ship.get('type') + '.png',
-  //   });
-  //   var shipTranslateModifier = new Modifier({
-  //     transform : function(){
-  //       var shipPosition = this.get('screenPosition').slice(0);
-  //       if (this.get('isVertical')) {
-  //         shipPosition[0] += TILESIZE / 2;
-  //         shipPosition[1] += ship.get('length') * TILESIZE/2;
-  //       } else {
-  //         shipPosition[1] += TILESIZE / 2;
-  //         shipPosition[0] += ship.get('length') * TILESIZE/2;
-  //       }
-  //       return Transform.translate(shipPosition[0], shipPosition[1], 0);
-  //     }.bind(ship)
-  //   });
-  //   var shipRotateModifier = new Modifier({
-  //     origin: [0.5, 0.5],
-  //     transform : function(){
-  //       var shipRotation = this.get('screenRotation');
-  //       return Transform.rotateZ(shipRotation);
-  //     }.bind(ship)
-  //   });
-  //   mainContext.add(shipTranslateModifier).add(shipRotateModifier).add(shipView);
-  //   ship.set('view', shipView);
-  // });
+  var hintsModifier = new StateModifier({
+    origin: [0.0, 0.0],
+    align: [0.6, 0.1] 
+  })
+
+  hints = new Surface({
+    content: "",
+    properties: {
+      backgroundColor: "rgb(33, 33, 33)",
+      color: "white"
+    }
+  });
+
+  mainContext.add(hintsModifier).add(hints);
 
   // Draw the cursor
   var cursorSurface = new Surface({

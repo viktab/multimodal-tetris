@@ -163,6 +163,15 @@ Leap.loop({ frame: function(frame) {
     content = "<h1>multimodal tetris</h1>" + h3;
   }
   background.setContent(content);
+  if (playing) {
+    let header = "<h2>Actions</h2>";
+    let turn = "<h4>Turn clockwise: \"Turn\" or flick finger up</h4>";
+    let turnBack = "<h4>Turn counterclockwise: \"Turn back\"</h4>";
+    let turn180 = "<h4>Turn 180 desgrees: \"Flip\"</h4>";
+    let drop = "<h4>Drop into place: \"Drop\", \"Down\" or flick finger down</h4>";
+    let askScore = "<h4>Ask for score: \"How many lines?\"</h4>";
+    hints.setContent(header + turn + turnBack + turn180 + drop + askScore);
+  }
 }}).use('screenPosition', {scale: LEAPSCALE});
 
 // processSpeech(transcript)
