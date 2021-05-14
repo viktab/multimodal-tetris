@@ -106,6 +106,7 @@ var Piece = Backbone.Model.extend({
         return true;
       }
     }
+    return false;
   },
 
   draw: function() {
