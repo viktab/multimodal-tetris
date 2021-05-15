@@ -66,7 +66,7 @@ Leap.loop({ frame: function(frame) {
         // Get the tile that the player is currently selecting, highlight it and move the block
         selectedTile = getIntersectingTile(translatedCursor);
         if (selectedTile) {
-          if (!piece.collides(playerBoard, {row: piece.getScreenPosition().row, col: selectedTile.col}, undefined)) {
+          if (!collides()) {
             piece.setScreenPosition(selectedTile);
           } else {
             piece.setScreenPosition(piece.getScreenPosition());
@@ -146,7 +146,7 @@ Leap.loop({ frame: function(frame) {
       // Get the tile that the player is currently selecting, highlight it and move the block
       selectedTile = getIntersectingTile(translatedCursor);
       if (selectedTile) {
-        if (!piece.collides(playerBoard, {row: piece.getScreenPosition().row, col: selectedTile.col}, undefined)) {
+        if (!collides()) {
           piece.setScreenPosition(selectedTile);
         } else {
           piece.setScreenPosition(piece.getScreenPosition());
@@ -286,3 +286,15 @@ var askPlayAgain = function() {
   playing = false;
   }
 };
+
+var collides = function() {
+  var currCol = piece.getScreenPosition().col;
+  var newCol = selectedTile.col;
+  var colA = currCol < newCol ? currCol : newCol;
+  var colB = currCol < newCol ? newCol : currCol ;
+  console.log(colA, colB);
+  for (let col = colA; col < colB + 1; col++) {
+    if (piece.collides(playerBoard, {row: piece.getScreenPosition().row, col: col}, undefined)) return true;
+  }
+  return false;
+}
