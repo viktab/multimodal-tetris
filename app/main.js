@@ -27,7 +27,7 @@ var content = "";
 // Called every time the Leap provides a new frame of data
 Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
-  if (playing || tutorial > 1) piece.unhighlightTiles();
+  if (playing || tutorial > 1) playerBoard.draw();
 
   var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
 

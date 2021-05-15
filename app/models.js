@@ -46,6 +46,17 @@ var Piece = Backbone.Model.extend({
     return this.get('color');
   },
 
+  getTiles: function() {
+    var pieceTiles = [];
+    var screenPos = this.get('screenPosition');
+    for (let i = 0; i < 4; i++) {
+      var offset = this.get('offsets')[i];
+      var tile = {row: screenPos.row + offset[1], col: screenPos.col + offset[0]};
+      pieceTiles.push(tile);
+    }
+    return pieceTiles;
+  },
+
   drawShadow: function(board) {
     var collided = false;
     var pos = this.get('screenPosition');
@@ -118,9 +129,7 @@ var Piece = Backbone.Model.extend({
   },
 
   unhighlightTiles: function() {
-    for (let i = 0; i < 4; i++) {
-      var offset = this.get('offsets')[i];
-      var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
+    for (tile of this.getTiles()) {
       highlightTile(tile, Colors.GREY);
     }
     for (shadowTile of this.get('shadowTiles')) {
