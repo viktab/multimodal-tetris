@@ -129,7 +129,6 @@ Leap.loop({ frame: function(frame) {
         playerBoard.placePiece(piece);
         if (playerBoard.lost()) {
           piece.draw();
-          playing = false;
           askPlayAgain();
         } else {
           let rows = playerBoard.checkRows();
@@ -282,5 +281,8 @@ var tryDrop = function() {
 };
 
 var askPlayAgain = function() {
+  if (playing) {
   generateSpeech("You lost! Would you like to play again?");
+  playing = false;
+  }
 };
