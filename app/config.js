@@ -10,13 +10,13 @@ var Colors = {
   BLUE: "#1100FF",  // J
   CYAN: "#00FFFF",  // I
   PURPLE: "#8000FF",// T
-  LIGHTGREEN: "#C0EDD4", // S shadow
-  LIGHTRED: "#FFA59E",   // Z shadow
-  LIGHTYELLOW: "#FFFCC7",// O shadow
-  LIGHTORANGE: "#FFFCC4",// L shadow
-  LIGHTBLUE: "#8178FF",  // J shadow
-  LIGHTCYAN: "#BDFFFF",  // I shadow
-  LIGHTPURPLE: "#D0A1FF",// T shadow
+  LIGHTGREEN: "#CBF5CC", // S shadow
+  LIGHTRED: "#F5CBCB",   // Z shadow
+  LIGHTYELLOW: "#F5F1CB",// O shadow
+  LIGHTORANGE: "#F5E6CB",// L shadow
+  LIGHTBLUE: "#CCCBF5",  // J shadow
+  LIGHTCYAN: "#CBF5F5",  // I shadow
+  LIGHTPURPLE: "#E0CBF5",// T shadow
 };
 var ROWNAMES = ["A", "B", "C", "D", "E", "F", "G", "H"];
 var COLNAMES = ["1", "2", "3", "4", "5", "6", "7", "8"];

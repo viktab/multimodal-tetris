@@ -129,7 +129,8 @@ Leap.loop({ frame: function(frame) {
         playerBoard.placePiece(piece);
         if (playerBoard.lost()) {
           piece.draw();
-          askPlayAgain();
+          playing = false;
+          generateSpeech("You lost! Would you like to play again?");
         } else {
           let rows = playerBoard.checkRows();
           updateSpeed(score, rows);
@@ -202,7 +203,7 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
-  if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"])) {
+  if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
     opened = false;
     playing = true;
     processed = true;
@@ -280,19 +281,11 @@ var tryDrop = function() {
   }
 };
 
-var askPlayAgain = function() {
-  if (playing) {
-  generateSpeech("You lost! Would you like to play again?");
-  playing = false;
-  }
-};
-
 var collides = function() {
   var currCol = piece.getScreenPosition().col;
   var newCol = selectedTile.col;
   var colA = currCol < newCol ? currCol : newCol;
   var colB = currCol < newCol ? newCol : currCol ;
-  console.log(colA, colB);
   for (let col = colA; col < colB + 1; col++) {
     if (piece.collides(playerBoard, {row: piece.getScreenPosition().row, col: col}, undefined)) return true;
   }
