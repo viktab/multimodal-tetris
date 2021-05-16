@@ -17,6 +17,13 @@ var Colors = {
   LIGHTBLUE: "#CCCBF5",  // J shadow
   LIGHTCYAN: "#CBF5F5",  // I shadow
   LIGHTPURPLE: "#E0CBF5",// T shadow
+  DARKGREEN: "#002E0D", // S drop
+  DARKRED: "#2E0000",   // Z drop
+  DARKYELLOW: "#2E2C00",// O drop
+  DARKORANGE: "#2E1F00",// L drop
+  DARKBLUE: "#00022E",  // J drop
+  DARKCYAN: "#002D2E",  // I drop
+  DARKPURPLE: "#18002E",// T drop
 };
 var ROWNAMES = ["A", "B", "C", "D", "E", "F", "G", "H"];
 var COLNAMES = ["1", "2", "3", "4", "5", "6", "7", "8"];

@@ -18,6 +18,8 @@ var Piece = Backbone.Model.extend({
     this.set('color', color);
     let shadow = getShapeShadow(shape);
     this.set('shadow', shadow);
+    let drop = getShapeDrop(shape);
+    this.set('drop', drop);
     let offsets = getShapeCoordinates(shape);
     this.set('offsets', offsets);
     var topOffsets = offsets.map(function(elt) { return elt[1]; });
@@ -28,10 +30,15 @@ var Piece = Backbone.Model.extend({
     }
     this.set('rotation', 0);
     this.set('shadowTiles', [])
+    this.set('hasLeft', false);
   },
 
   setScreenPosition: function(position) {
     this.set('screenPosition', {row: this.get('screenPosition').row, col: position.col});
+  },
+
+  setHasLeft: function(hasLeft) {
+    this.set('hasLeft', hasLeft);
   },
 
   getScreenPosition: function() {
@@ -43,7 +50,7 @@ var Piece = Backbone.Model.extend({
   },
 
   getColor: function() {
-    return this.get('color');
+    return this.get('hasLeft') ? this.get('drop') : this.get('color');
   },
 
   getTiles: function() {
@@ -124,7 +131,7 @@ var Piece = Backbone.Model.extend({
     for (let i = 0; i < 4; i++) {
       var offset = this.get('offsets')[i];
       var tile = {row: this.get('screenPosition').row + offset[1], col: this.get('screenPosition').col + offset[0]};
-      highlightTile(tile, this.get('color'));
+      highlightTile(tile, this.getColor());
     }
   },
 

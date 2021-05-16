@@ -98,6 +98,24 @@ var getShapeShadow = function(shape) {
   }
 }
 
+var getShapeDrop = function(shape) {
+  if (shape == "L") {
+    return Colors.DARKORANGE;
+  } else if (shape == "J") {
+    return Colors.DARKBLUE;
+  } else if (shape == "T") {
+    return Colors.DARKPURPLE;
+  } else if (shape == "I") {
+    return Colors.DARKCYAN;
+  } else if (shape == "O") {
+    return Colors.DARKYELLOW;
+  } else if (shape == "Z") {
+    return Colors.DARKRED;
+  } else {
+    return Colors.DARKGREEN;
+  }
+}
+
 var rotateBlock = function(shape, rotation) {
   rotation = rotation % 4;
   if (shape == "L") {

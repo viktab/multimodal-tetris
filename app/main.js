@@ -16,6 +16,7 @@ var score = 0;
 var lastDrop = Date.now();
 var lastSwipe = Date.now();
 var pointPositions = [];
+var leftPositions = [];
 
 var playing = false;
 var opened = true;
@@ -29,13 +30,17 @@ Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
   if (playing || tutorial > 1) playerBoard.draw();
 
-  var hand = frame.hands.length > 0 ? frame.hands[0] : undefined;
+  var hand = undefined
+  var leftHand = undefined;
+  var hands = frame.hands;
+  for (currHand of hands) {
+    if (currHand.type == "right") hand = currHand;
+    if (currHand.type == "left") leftHand = currHand;
+  }
 
   // Use the hand data to control the cursor's screen position
-  var cursorPosition = hand ? hand.screenPosition() : undefined;
-  var translateVector = Leap.vec3.fromValues(-200, 250, 0);
-  var returnVector = Leap.vec3.create();
-  var translatedCursor = cursorPosition ? Leap.vec3.add(returnVector, cursorPosition, translateVector) : undefined;
+  var translatedCursor = translateCursor(hand, -350); 
+  var translatedLeftCursor = translateCursor(leftHand, 0); 
 
   if (!playing) { // only draw the cursor
     if (translatedCursor) {
@@ -112,12 +117,23 @@ Leap.loop({ frame: function(frame) {
             piece.rotate(playerBoard, 1);
             lastSwipe = now;
           }
-        } else if ((pointPositions[6] - pointPositions[0]) > 150) { // need a higher threshold for dropping bc scary
-          tryDrop();
         }
       }
     } else { // finger left motion sensor so reset the list
       pointPositions = [];
+    }
+
+    // check swipes
+    if (translatedLeftCursor) {
+      leftPositions.push(translatedLeftCursor[1]);
+      if (leftPositions.length > 7) {
+        leftPositions.shift();
+        if ((leftPositions[6] - leftPositions[0]) > 150) {
+          tryDrop();
+        }
+      }
+    } else { // finger left motion sensor so reset the list
+      leftPositions = [];
     }
 
     // move block down every FALLSPEED milliseconds
@@ -126,6 +142,7 @@ Leap.loop({ frame: function(frame) {
       var falling = piece.fall(playerBoard);
       start = now;
       if (!falling) {
+        piece.setHasLeft(false);
         playerBoard.placePiece(piece);
         if (playerBoard.lost()) {
           piece.draw();
@@ -141,7 +158,7 @@ Leap.loop({ frame: function(frame) {
       }
     }
 
-    if (translatedCursor) {
+    if (translatedCursor && !translatedLeftCursor) {
       cursor.setScreenPosition(translatedCursor);
   
       // Get the tile that the player is currently selecting, highlight it and move the block
@@ -154,6 +171,7 @@ Leap.loop({ frame: function(frame) {
         }
       }
     }
+    piece.setHasLeft(leftHand ? true : false);
     piece.drawShadow(playerBoard);
     piece.draw();
   }
@@ -267,9 +285,17 @@ var processSpeech = function(transcript) {
   return processed;
 };
 
+var translateCursor = function(hand, offset) {
+  var cursorPosition = hand ? hand.screenPosition() : undefined;
+  var translateVector = Leap.vec3.fromValues(offset, 250, 0);
+  var returnVector = Leap.vec3.create();
+  return cursorPosition ? Leap.vec3.add(returnVector, cursorPosition, translateVector) : undefined;
+}
+
 var tryDrop = function() {
   let now = Date.now();
   if ((now - lastDrop) >= 1000) {
+    piece.setHasLeft(false);
     piece.drop(playerBoard);
     playerBoard.placePiece(piece);
     let rows = playerBoard.checkRows();
