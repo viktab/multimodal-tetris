@@ -3,7 +3,14 @@
 /*****************************************************************/
 var debouncedProcessSpeech = _.debounce(processSpeech, 300);
 
+var commands = ["start", "play", "stop", "hold", "how", "many", "lines", "next", "help", "back", "turn", "flip", "exit", "pause"];
+var grammar = '#JSGF V1.0; grammar commands; public <command> = ' + commands.join(' | ') + ' ;'
+
 var recognition = new webkitSpeechRecognition();
+var SpeechGrammarList = SpeechGrammarList || webkitSpeechGrammarList
+var speechRecognitionList = new SpeechGrammarList();
+speechRecognitionList.addFromString(grammar, 1);
+
 recognition.continuous = true;
 recognition.interimResults = true;
 recognition.onresult = function(event) {
@@ -37,7 +44,7 @@ recognition.onend = function(event) {
     if (DEBUGSPEECH)
       otherFeedback.setContent("SPEECH DEBUG: ready");
     recognition.start();
-  }, 100);
+  }, SPEECHTIMEOUT);
 };
 recognition.start();
 /*****************************************************************/

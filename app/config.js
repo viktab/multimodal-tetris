@@ -44,3 +44,4 @@ var SKIPSETUP = false;
 
 var SHAPES = ["L", "J", "T", "I", "O", "Z", "S"];
 var FALLSPEED = 1000;
+var SPEECHTIMEOUT = 1000;

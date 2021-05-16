@@ -1,5 +1,4 @@
 // GAME SETUP
-var initialState = SKIPSETUP ? "playing" : "setup";
 var playerBoard = new Board();
 var cursor = new Cursor();
 var piece = makePiece(false, undefined);
@@ -19,6 +18,7 @@ var lastSwipe = Date.now();
 var lastNext = Date.now();
 var pointPositions = [];
 var leftPositions = [];
+var paused = false;
 
 var playing = false;
 var opened = true;
@@ -28,12 +28,13 @@ var content = "";
 var nextInst = "<h4>Next tip: \"Next\" or \"Help\"</h4>";
 var prevInst = "<h4>Previous tip: \"Back\"</h4>";
 var exitInst = "<h4>Go to main screen: \"Exit\"</h4>";
-var startInst = "<h4>Start playing: \"Start\" or \"Play\"</h4>";
+var startInst = "<h4>Start playing: \"Start\"</h4>";
 var tutorialInsts = nextInst + prevInst + exitInst + startInst;
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
 Leap.loop({ frame: function(frame) {
+  if (paused) return;
   // Clear any highlighting at the beginning of the loop
   if (playing || tutorial > 1) playerBoard.draw();
 
@@ -156,6 +157,7 @@ Leap.loop({ frame: function(frame) {
         if (playerBoard.lost()) {
           piece.draw();
           playing = false;
+          SPEECHTIMEOUT = 1000;
           generateSpeech("You lost! Would you like to play again?");
         } else {
           let rows = playerBoard.checkRows();
@@ -198,7 +200,9 @@ Leap.loop({ frame: function(frame) {
     let drop = "<h4>Drop into place: \"Drop\", \"Down\" or flick left hand down</h4>";
     let askScore = "<h4>Ask for score: \"How many lines?\"</h4>";
     let askHold = "<h4>Replace piece with held piece: \"Hold\"</h4>";
-    hints.setContent(header + turn + turnBack + turn180 + drop + askScore + askHold);
+    let askPause = "<h4>Pause the game: \"Stop\" or \"Pause\"</h4>";
+    let askPlay = "<h4>Continue the game: \"Play\" or \"Start\"</h4>";
+    hints.setContent(header + turn + turnBack + turn180 + drop + askScore + askHold + askPause + askPlay);
   }
 }}).use('screenPosition', {scale: LEAPSCALE});
 
@@ -231,13 +235,24 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
-  if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
+  if (!playing && userSaid(transcript.toLowerCase(), ["start", "begin", "go"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
+    SPEECHTIMEOUT = 100;
     tutorial = -1;
     playerBoard.clear();
     piece = makePiece(false, undefined);
     updateHold(holdShape);
     opened = false;
     playing = true;
+    processed = true;
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["stop"])) {
+    paused = true;
+    processed = true;
+  }
+
+  if (userSaid(transcript.toLowerCase(), ["play"])) {
+    paused = false;
     processed = true;
   }
 
@@ -282,12 +297,12 @@ var processSpeech = function(transcript) {
         piece.draw();
       }
       if (userSaid(transcript.toLowerCase(), ["help", "next"])) {
-        if (tutorial < 5) tutorial += 1;
+        if (tutorial < 6) tutorial += 1;
         else tutorial = 0;
       }
       if (userSaid(transcript.toLowerCase(), ["back"])) {
         if (tutorial > 0) tutorial -= 1;
-        else tutorial = 5;
+        else tutorial = 6;
       }
       if (tutorial == 0) {
         generateSpeech("To turn clockwise, flick your right hand up or say turn. Try it with this block!");
@@ -307,6 +322,9 @@ var processSpeech = function(transcript) {
       } else if (tutorial == 5) {
         generateSpeech("To replace your piece with the one in the hold box, say 'hold'.");
         content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold'.</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 6) {
+        generateSpeech("You can say 'stop' or 'pause' to pause the game, and 'start' or 'play' to continue playing.");
+        content = "<h1>multimodal tetris</h1><h3>You can say 'stop' or 'pause' <br> to pause the game, and 'start' <br> or 'play' to continue playing.</h3> <br>" + tutorialInsts;
       }
     }
   }
