@@ -41,6 +41,19 @@ var Piece = Backbone.Model.extend({
     this.set('hasLeft', hasLeft);
   },
 
+  setShape: function(shape) {
+    this.set('shape', shape);
+    let color = getShapeColor(shape);
+    this.set('color', color);
+    let shadow = getShapeShadow(shape);
+    this.set('shadow', shadow);
+    let drop = getShapeDrop(shape);
+    this.set('drop', drop);
+    let offsets = getShapeCoordinates(shape);
+    this.set('offsets', offsets);
+    this.set('rotation', 0);
+  },
+
   getScreenPosition: function() {
     return this.get('screenPosition');
   }, 
@@ -51,6 +64,10 @@ var Piece = Backbone.Model.extend({
 
   getColor: function() {
     return this.get('hasLeft') ? this.get('drop') : this.get('color');
+  },
+
+  getShape: function() {
+    return this.get('shape');
   },
 
   getTiles: function() {

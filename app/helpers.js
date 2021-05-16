@@ -39,10 +39,15 @@ var getIntersectingTile = function(screenPosition) {
   }
 };
 
-var makePiece = function(isTutorial) {
+var makePiece = function(isTutorial, shape) {
+  if (shape) return new Piece(shape, {val: isTutorial});
   var len = isTutorial ? 3 : SHAPES.length;
-  let shape = SHAPES[Math.floor(Math.random() * len)];
+  shape = SHAPES[Math.floor(Math.random() * len)];
   return new Piece(shape, {val: isTutorial});
+}
+
+var makeShape = function() {
+  return SHAPES[Math.floor(Math.random() * SHAPES.length)];
 }
 
 var getShapeCoordinates = function(shape) {
@@ -179,6 +184,24 @@ var unhighlightTiles = function() {
     tile.setProperties({backgroundColor: Colors.GREY});
   });
 };
+
+var resetHold = function() {
+  holdTiles.forEach(function(tile) {
+    tile.setProperties({backgroundColor: Colors.DARKGREY});
+  });
+};
+
+var updateHold = function(shape) {
+  var color = getShapeColor(shape);
+  var offsets = getShapeCoordinates(shape);
+  var topOffsets = offsets.map(function(elt) { return elt[1]; });
+  var topOffset = Math.min.apply(null, topOffsets);
+  var pos = [1, -topOffset];
+  for (offset of offsets) {
+    let index = pos[0] + offset[0] + (pos[1] + offset[1])*3;
+    holdTiles[index].setProperties({backgroundColor: color});
+  }
+}
 
 // highlightTile(position, color)
 //    Highlights a tile with a particular color

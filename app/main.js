@@ -2,7 +2,8 @@
 var initialState = SKIPSETUP ? "playing" : "setup";
 var playerBoard = new Board();
 var cursor = new Cursor();
-var piece = makePiece(false);
+var piece = makePiece(false, undefined);
+var holdShape = makeShape();
 
 // UI SETUP
 setupUserInterface();
@@ -45,7 +46,7 @@ Leap.loop({ frame: function(frame) {
   }
 
   // Use the hand data to control the cursor's screen position
-  var translatedCursor = translateCursor(hand, -350); 
+  var translatedCursor = translateCursor(hand, -450); 
   var translatedLeftCursor = translateCursor(leftHand, 0); 
 
   if (!playing) { // only draw the cursor
@@ -161,7 +162,7 @@ Leap.loop({ frame: function(frame) {
           updateSpeed(score, rows);
           score += rows;
           playerBoard.draw();
-          piece = makePiece(false);
+          piece = makePiece(false, undefined);
         }
       }
     }
@@ -232,7 +233,8 @@ var processSpeech = function(transcript) {
   if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
     tutorial = -1;
     playerBoard.clear();
-    piece = makePiece(false);
+    piece = makePiece(false, undefined);
+    updateHold(holdShape);
     opened = false;
     playing = true;
     processed = true;
@@ -275,16 +277,16 @@ var processSpeech = function(transcript) {
     if ((now - lastNext) >= 3000) {
       lastNext = now;
       if (tutorial == -1) {
-        piece = makePiece(true);
+        piece = makePiece(true, undefined);
         piece.draw();
       }
       if (userSaid(transcript.toLowerCase(), ["help", "next"])) {
-        if (tutorial < 4) tutorial += 1;
+        if (tutorial < 5) tutorial += 1;
         else tutorial = 0;
       }
       if (userSaid(transcript.toLowerCase(), ["back"])) {
         if (tutorial > 0) tutorial -= 1;
-        else tutorial = 4;
+        else tutorial = 5;
       }
       if (tutorial == 0) {
         generateSpeech("To turn clockwise, flick your right hand up or say turn. Try it with this block!");
@@ -301,6 +303,9 @@ var processSpeech = function(transcript) {
       } else if (tutorial == 4) {
         generateSpeech("While you're playing the game, you can ask me 'how many lines' and I will tell you your current score.");
         content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score.</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 5) {
+        generateSpeech("To replace your piece with the one in the hold box, say 'hold'.");
+        content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold'.</h3> <br>" + tutorialInsts;
       }
     }
   }
@@ -308,7 +313,15 @@ var processSpeech = function(transcript) {
   if (userSaid(transcript.toLowerCase(), ["exit"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
     piece.unhighlightTiles();
     tutorial = -1;
-    piece = makePiece(false);
+    piece = makePiece(false, undefined);
+  }
+
+  if (playing && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help"])) {
+    let currShape = piece.getShape();
+    piece.setShape(holdShape);
+    resetHold();
+    updateHold(currShape);
+    holdShape = currShape;
   }
 
   return processed;
@@ -331,7 +344,7 @@ var tryDrop = function() {
     updateSpeed(score, rows);
     score += rows;
     playerBoard.draw();
-    piece = makePiece(false);
+    piece = makePiece(false, undefined);
     lastDrop = Date.now();
   }
 };

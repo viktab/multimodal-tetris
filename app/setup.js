@@ -10,9 +10,11 @@ var GridLayout = famous.views.GridLayout;
 
 var tiles = [];
 var tileModifiers = [];
+var holdTiles = [];
 var gridOrigin = [350, 35];
+var holdOrigin = [gridOrigin[0] + BOARDWIDTH + 15, gridOrigin[1]];
 
-var background, turnFeedback, otherFeedback, hints;
+var background, otherFeedback, hints;
 
 // USER INTERFACE SETUP
 var setupUserInterface = function() {
@@ -25,14 +27,6 @@ var setupUserInterface = function() {
     }
   });
   mainContext.add(background);
-  turnFeedback = new Surface({
-    content: "",
-    size: [undefined, 150],
-    properties: {
-      backgroundColor: "rgb(34, 34, 34)",
-      color: "white"
-    }
-  });
   otherFeedback = new Surface({
     content: "",
     size: [undefined, 50],
@@ -67,6 +61,28 @@ var setupUserInterface = function() {
       mainContext.add(transformModifier).add(tileModifier).add(tile);
       tiles.push(tile);
       tileModifiers.push(tileModifier);
+    }
+  }
+
+  // Draw the hold piece section
+  for (var row = 0; row < 4; row++) {
+    for (var col = 0; col < 3; col++) {
+      var tile = new Surface({
+          size: [TILESIZE, TILESIZE],
+          properties: {
+              backgroundColor: Colors.DARKGREY,
+              color: "white",
+              border: "solid 1px black"
+          },
+      });
+      var transformModifier = new StateModifier({
+        transform: Transform.translate(holdOrigin[0] + col*TILESIZE, holdOrigin[1] + row*TILESIZE, 0)
+      });
+      var tileModifier = new Modifier({
+        opacity: 1.0
+      });
+      mainContext.add(transformModifier).add(tileModifier).add(tile);
+      holdTiles.push(tile);
     }
   }
 

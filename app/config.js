@@ -1,15 +1,16 @@
 // Configuration of the game
 
 var Colors = {
-  GREY: "#AAAAAA",  // default tile color
-  WHITE: "#FFFFFF", // highlighting
-  GREEN: "#7CD3A2", // S
-  RED: "#FA5C4F",   // Z
-  YELLOW: "#FAF36F",// O
-  ORANGE: "#ED9418",// L
-  BLUE: "#1100FF",  // J
-  CYAN: "#00FFFF",  // I
-  PURPLE: "#8000FF",// T
+  GREY: "#AAAAAA",    // default tile color
+  DARKGREY: "#696969",// hold tile color
+  WHITE: "#FFFFFF",   // highlighting
+  GREEN: "#7CD3A2",   // S
+  RED: "#FA5C4F",     // Z
+  YELLOW: "#FAF36F",  // O
+  ORANGE: "#ED9418",  // L
+  BLUE: "#1100FF",    // J
+  CYAN: "#00FFFF",    // I
+  PURPLE: "#8000FF",  // T
   LIGHTGREEN: "#CBF5CC", // S shadow
   LIGHTRED: "#F5CBCB",   // Z shadow
   LIGHTYELLOW: "#F5F1CB",// O shadow
