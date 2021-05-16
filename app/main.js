@@ -15,6 +15,7 @@ var score = 0;
 
 var lastDrop = Date.now();
 var lastSwipe = Date.now();
+var lastNext = Date.now();
 var pointPositions = [];
 var leftPositions = [];
 
@@ -23,6 +24,11 @@ var opened = true;
 var tutorial = -1;
 
 var content = "";
+var nextInst = "<h4>Next tip: \"Next\" or \"Help\"</h4>";
+var prevInst = "<h4>Previous tip: \"Back\"</h4>";
+var exitInst = "<h4>Go to main screen: \"Exit\"</h4>";
+var startInst = "<h4>Start playing: \"Start\" or \"Play\"</h4>";
+var tutorialInsts = nextInst + prevInst + exitInst + startInst;
 
 // MAIN GAME LOOP
 // Called every time the Leap provides a new frame of data
@@ -65,7 +71,7 @@ Leap.loop({ frame: function(frame) {
       }
     } if (tutorial > 1) {
       // allow user to move block side to side for tutorial
-      if (translatedCursor) {
+      if (translatedCursor && (tutorial == 2 || !translatedLeftCursor)) {
         cursor.setScreenPosition(translatedCursor);
     
         // Get the tile that the player is currently selecting, highlight it and move the block
@@ -87,11 +93,12 @@ Leap.loop({ frame: function(frame) {
       }
 
       // check swipe down for dropping tutorial
-      if (translatedCursor) {
-        pointPositions.push(translatedCursor[1]);
-        if (pointPositions.length > 7) {
-          pointPositions.shift();
-          if ((pointPositions[6] - pointPositions[0]) > 150) { // need a higher threshold for dropping bc scary
+      if (translatedLeftCursor) {
+        piece.setHasLeft(true);
+        leftPositions.push(translatedLeftCursor[1]);
+        if (leftPositions.length > 7) {
+          leftPositions.shift();
+          if ((leftPositions[6] - leftPositions[0]) > 150) { // need a higher threshold for dropping bc scary
             if ((Date.now() - lastDrop) >= 1000) {
               piece.unhighlightTiles();
               piece.drop(playerBoard);
@@ -100,7 +107,8 @@ Leap.loop({ frame: function(frame) {
           }
         }
       } else { // finger left motion sensor so reset the list
-        pointPositions = [];
+        leftPositions = [];
+        piece.setHasLeft(false);
       }
     }
   }  else { // gameplay logic
@@ -222,18 +230,26 @@ var processSpeech = function(transcript) {
   }
 
   if (userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
+    tutorial = -1;
+    playerBoard.clear();
+    piece = makePiece(false);
     opened = false;
     playing = true;
     processed = true;
   }
 
   if (userSaid(transcript.toLowerCase(), ["drop", "down"])) {
-    tryDrop();
+    if (tutorial == -1) tryDrop();
+    else {
+      piece.unhighlightTiles();
+      piece.drop(playerBoard);
+      lastDrop = Date.now();
+    }
     processed = true;
   }
 
   if (userSaid(transcript.toLowerCase(), ["yes", "sure", "ok", "yeah", "yep", "please", "okay"])) {
-    if (!playing) {
+    if (!playing && tutorial == -1) {
       playerBoard.clear();
       score = 0;
       playing = true;
@@ -242,7 +258,7 @@ var processSpeech = function(transcript) {
   }
 
   if (userSaid(transcript.toLowerCase(), ["no", "nope", "nah", "nada"])) {
-    if (!playing) {
+    if (!playing && tutorial == -1) {
       generateSpeech("Alright. Thanks for playing!");
       processed = true;
     }
@@ -254,25 +270,38 @@ var processSpeech = function(transcript) {
     }
   }
 
-  if (userSaid(transcript.toLowerCase(), ["help"]) && !userSaid(transcript.toLowerCase(), ["say"])) {
-    tutorial += 1;
-    if (tutorial == 0) {
-      piece = makePiece(true);
-      piece.draw();
-      generateSpeech("To turn clockwise, flick your finger up or say turn. Try this a couple times, and say help to move onto the next step.");
-      content = "<h1>multimodal tetris</h1><h3>To turn clockwise, flick your <br> finger up or say turn. Try <br> this a couple times, and say <br> help to move onto the next <br> step.</h3>";
-    } else if (tutorial == 1) {
-      generateSpeech("To turn counter clockwise, say turn back. To turn 180 degrees, say flip. Try these a couple times, and say help to move onto the next step.");
-      content = "<h1>multimodal tetris</h1><h3>To turn counter clockwise, <br> say turn back. To turn 180 <br> degrees, say flip. Try these <br> a couple times, and say help <br> to move onto the next step.</h3>";
-    } else if (tutorial == 2) {
-      generateSpeech("To move your block, point at the position on the screen that you want to move it to. Try this for a bit, and say help to move onto the next step.");
-      content = "<h1>multimodal tetris</h1><h3>To move your block, point <br> at the position on the screen <br> that you want to move it to. <br> Try this for a bit, and say <br> help to move onto the next <br> step.</h3>";
-    } else if (tutorial == 3) {
-      generateSpeech("To drop your block into place, flick your finger down or say drop or down. Try this for a couple times, and say help to move onto the last step.");
-      content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> flick your finger down or say <br> drop or down. Try this a couple <br> times, and say help to move <br> onto the last step.</h3>";
-    } else if (tutorial == 4) {
-      generateSpeech("While you're playing the game, you can ask me 'how mnny lines' and I will tell you your current score. Say exit to go back to the main screen.");
-      content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score. Say exit to go <br> back to the main screen.</h3>";
+  if (!playing && userSaid(transcript.toLowerCase(), ["help", "next", "back"]) && !userSaid(transcript.toLowerCase(), ["say", "to", "step", "the", "turn"])) {
+    let now = Date.now();
+    if ((now - lastNext) >= 3000) {
+      lastNext = now;
+      if (tutorial == -1) {
+        piece = makePiece(true);
+        piece.draw();
+      }
+      if (userSaid(transcript.toLowerCase(), ["help", "next"])) {
+        if (tutorial < 4) tutorial += 1;
+        else tutorial = 0;
+      }
+      if (userSaid(transcript.toLowerCase(), ["back"])) {
+        if (tutorial > 0) tutorial -= 1;
+        else tutorial = 4;
+      }
+      if (tutorial == 0) {
+        generateSpeech("To turn clockwise, flick your right hand up or say turn. Try it with this block!");
+        content = "<h1>multimodal tetris</h1><h3>To turn clockwise, flick your <br> right hand up or say turn. Try <br> it with this block! </h3> <br>" + tutorialInsts;
+      } else if (tutorial == 1) {
+        generateSpeech("To turn counter clockwise, say turn back. To turn 180 degrees, say flip. Try it with this block!");
+        content = "<h1>multimodal tetris</h1><h3>To turn counter clockwise, <br> say turn back. To turn 180 <br> degrees, say flip. Try it <br> with this block!</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 2) {
+        generateSpeech("To move your block, point with your right hand at the position on the screen that you want to move it to. Try it with this block!");
+        content = "<h1>multimodal tetris</h1><h3>To move your block, point your <br> right hand at the position <br> on the screen that you want <br> to move it to. Try it with <br> this block!</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 3) {
+        generateSpeech("To drop your block into place, point your left hand at the screen and flick it down or say drop or down. Try it with this block!");
+        content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> point your left hand at the <br> screen and flick it down or say <br> drop or down. Try it with this <br> block!</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 4) {
+        generateSpeech("While you're playing the game, you can ask me 'how many lines' and I will tell you your current score.");
+        content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score.</h3> <br>" + tutorialInsts;
+      }
     }
   }
 

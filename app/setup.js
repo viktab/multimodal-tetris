@@ -33,11 +33,6 @@ var setupUserInterface = function() {
       color: "white"
     }
   });
-  var turnModifier = new StateModifier({
-    origin: [0.0, 0.0],
-    align: [0.0, 0.4] 
-  })
-  mainContext.add(turnModifier).add(turnFeedback);
   otherFeedback = new Surface({
     content: "",
     size: [undefined, 50],

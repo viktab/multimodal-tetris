@@ -40,7 +40,8 @@ var getIntersectingTile = function(screenPosition) {
 };
 
 var makePiece = function(isTutorial) {
-  let shape = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  var len = isTutorial ? 3 : SHAPES.length;
+  let shape = SHAPES[Math.floor(Math.random() * len)];
   return new Piece(shape, {val: isTutorial});
 }
 
