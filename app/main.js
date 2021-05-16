@@ -3,6 +3,7 @@ var playerBoard = new Board();
 var cursor = new Cursor();
 var piece = makePiece(false, undefined);
 var holdShape = makeShape();
+var hand = undefined
 
 // UI SETUP
 setupUserInterface();
@@ -41,7 +42,6 @@ Leap.loop({ frame: function(frame) {
   // Clear any highlighting at the beginning of the loop
   if (playing || tutorial > 1) playerBoard.draw();
 
-  var hand = undefined
   var leftHand = undefined;
   var hands = frame.hands;
   for (currHand of hands) {
@@ -115,35 +115,12 @@ Leap.loop({ frame: function(frame) {
         leftPositions = [];
         piece.setHasLeft(false);
       }
+    } if (tutorial > 3) {
+      // allow user to swap blocks
+      checkHold();
     }
   }  else { // gameplay logic
-
-    // check hold
-    if (hand) {
-      let norm = hand.palmNormal;
-      if (Math.abs(norm[2]) > Math.abs(norm[0])*3 && Math.abs(norm[2]) > Math.abs(norm[1])*3) {
-        if (!isHolding && Date.now() - lastHold > 1000) {
-          isHolding = true;
-          holdStart = Date.now();
-        } else if (isHolding) {
-          if (Date.now() - holdStart > 500) {
-            let currShape = piece.getShape();
-            piece.setShape(holdShape);
-            resetHold();
-            updateHold(currShape);
-            holdShape = currShape;
-            lastHold = Date.now();
-            isHolding = false;
-          }
-        }
-      } else {
-        if (isHolding) {
-          isHolding = false;
-          lastHold = Date.now()
-        }
-      }
-    }
-
+    checkHold();
 
     // check swipes
     if (translatedCursor) {
@@ -276,7 +253,7 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
-  if (userSaid(transcript.toLowerCase(), ["stop", "pause"])) {
+  if (playing && userSaid(transcript.toLowerCase(), ["stop", "pause"])) {
     paused = true;
     processed = true;
   }
@@ -323,7 +300,11 @@ var processSpeech = function(transcript) {
     if ((now - lastNext) >= 3000) {
       lastNext = now;
       if (tutorial == -1) {
-        piece = makePiece(true, undefined);
+        var same = true;
+        while (same) {
+          piece = makePiece(true, undefined);
+          if (piece.getShape() != holdShape) same = false;
+        }
         piece.draw();
       }
       if (userSaid(transcript.toLowerCase(), ["help", "next"])) {
@@ -347,8 +328,9 @@ var processSpeech = function(transcript) {
         generateSpeech("To drop your block into place, point your left hand at the screen and flick it down or say drop or down. Try it with this block!");
         content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> point your left hand at the <br> screen and flick it down or say <br> drop or down. Try it with this <br> block!</h3> <br>" + tutorialInsts;
       } else if (tutorial == 4) {
-        generateSpeech("To replace your piece with the one in the hold box, say 'hold' or open your left palm towards <br> the screen.");
-        content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold' <br> or open your left palm towards the screen.</h3> <br>" + tutorialInsts;
+        updateHold(holdShape);
+        generateSpeech("To replace your piece with the one in the hold box, say 'hold' or open your right palm towards the screen.");
+        content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold' <br> or open your right palm <br> towards the screen.</h3> <br>" + tutorialInsts;
       } else if (tutorial == 5) {
         generateSpeech("While you're playing the game, you can ask me 'how many lines' and I will tell you your current score.");
         content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score.</h3> <br>" + tutorialInsts;
@@ -365,7 +347,7 @@ var processSpeech = function(transcript) {
     piece = makePiece(false, undefined);
   }
 
-  if (playing && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help", "holt"])) {
+  if ((playing || tutorial > 3) && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help", "holt"])) {
     let currShape = piece.getShape();
     piece.setShape(holdShape);
     resetHold();
@@ -396,7 +378,7 @@ var tryDrop = function() {
     piece = makePiece(false, undefined);
     lastDrop = Date.now();
   }
-};
+}
 
 var collides = function() {
   var currCol = piece.getScreenPosition().col;
@@ -407,4 +389,31 @@ var collides = function() {
     if (piece.collides(playerBoard, {row: piece.getScreenPosition().row, col: col}, undefined)) return true;
   }
   return false;
+}
+
+var checkHold = function() {
+  if (hand) {
+    let norm = hand.palmNormal;
+    if (Math.abs(norm[2]) > Math.abs(norm[0])*2 && Math.abs(norm[2]) > Math.abs(norm[1])*2) {
+      if (!isHolding && Date.now() - lastHold > 1000) {
+        isHolding = true;
+        holdStart = Date.now();
+      } else if (isHolding) {
+        if (Date.now() - holdStart > 500) {
+          let currShape = piece.getShape();
+          piece.setShape(holdShape);
+          resetHold();
+          updateHold(currShape);
+          holdShape = currShape;
+          lastHold = Date.now();
+          isHolding = false;
+        }
+      }
+    } else {
+      if (isHolding) {
+        isHolding = false;
+        lastHold = Date.now()
+      }
+    }
+  }
 }
