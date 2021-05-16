@@ -41,7 +41,10 @@ var Piece = Backbone.Model.extend({
     this.set('hasLeft', hasLeft);
   },
 
-  setShape: function(shape) {
+  setShape: function(shape, board) {
+    let oldShape = this.getShape();
+    let oldOffsets = this.get('offsets');
+    let oldRotation = this.get('rotation');
     this.set('shape', shape);
     let color = getShapeColor(shape);
     this.set('color', color);
@@ -52,6 +55,21 @@ var Piece = Backbone.Model.extend({
     let offsets = getShapeCoordinates(shape);
     this.set('offsets', offsets);
     this.set('rotation', 0);
+
+    // if new shape collides, don't change it
+    if (this.collides(board, this.getScreenPosition(), this.get('offsets'))) {
+      this.set('shape', oldShape);
+      let color = getShapeColor(oldShape);
+      this.set('color', color);
+      let shadow = getShapeShadow(oldShape);
+      this.set('shadow', shadow);
+      let drop = getShapeDrop(oldShape);
+      this.set('drop', drop);
+      this.set('offsets', oldOffsets);
+      this.set('rotation', oldRotation);
+      return false;
+    }
+    return true;
   },
 
   getScreenPosition: function() {

@@ -349,10 +349,11 @@ var processSpeech = function(transcript) {
 
   if ((playing || tutorial > 3) && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help", "holt"])) {
     let currShape = piece.getShape();
-    piece.setShape(holdShape);
-    resetHold();
-    updateHold(currShape);
-    holdShape = currShape;
+    if (piece.setShape(holdShape, playerBoard)) {
+      resetHold();
+      updateHold(currShape);
+      holdShape = currShape;
+    }
   }
 
   return processed;
@@ -401,12 +402,13 @@ var checkHold = function() {
       } else if (isHolding) {
         if (Date.now() - holdStart > 500) {
           let currShape = piece.getShape();
-          piece.setShape(holdShape);
-          resetHold();
-          updateHold(currShape);
-          holdShape = currShape;
-          lastHold = Date.now();
-          isHolding = false;
+          if (piece.setShape(holdShape, playerBoard)) {
+            resetHold();
+            updateHold(currShape);
+            holdShape = currShape;
+            lastHold = Date.now();
+            isHolding = false;
+          }
         }
       }
     } else {
