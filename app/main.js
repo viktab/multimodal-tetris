@@ -16,8 +16,11 @@ var score = 0;
 var lastDrop = Date.now();
 var lastSwipe = Date.now();
 var lastNext = Date.now();
+var holdStart = Date.now();
+var lastHold = Date.now();
 var pointPositions = [];
 var leftPositions = [];
+var isHolding = false;
 var paused = false;
 
 var playing = false;
@@ -114,6 +117,33 @@ Leap.loop({ frame: function(frame) {
       }
     }
   }  else { // gameplay logic
+
+    // check hold
+    if (hand) {
+      let norm = hand.palmNormal;
+      if (Math.abs(norm[2]) > Math.abs(norm[0])*3 && Math.abs(norm[2]) > Math.abs(norm[1])*3) {
+        if (!isHolding && Date.now() - lastHold > 1000) {
+          isHolding = true;
+          holdStart = Date.now();
+        } else if (isHolding) {
+          if (Date.now() - holdStart > 500) {
+            let currShape = piece.getShape();
+            piece.setShape(holdShape);
+            resetHold();
+            updateHold(currShape);
+            holdShape = currShape;
+            lastHold = Date.now();
+            isHolding = false;
+          }
+        }
+      } else {
+        if (isHolding) {
+          isHolding = false;
+          lastHold = Date.now()
+        }
+      }
+    }
+
 
     // check swipes
     if (translatedCursor) {
@@ -235,7 +265,7 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
-  if (!playing && userSaid(transcript.toLowerCase(), ["start", "begin", "go"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
+  if (!playing && userSaid(transcript.toLowerCase(), ["start", "begin", "go", "play"]) && !userSaid(transcript.toLowerCase(), ["like"])) {
     SPEECHTIMEOUT = 100;
     tutorial = -1;
     playerBoard.clear();
@@ -246,12 +276,12 @@ var processSpeech = function(transcript) {
     processed = true;
   }
 
-  if (userSaid(transcript.toLowerCase(), ["stop"])) {
+  if (userSaid(transcript.toLowerCase(), ["stop", "pause"])) {
     paused = true;
     processed = true;
   }
 
-  if (userSaid(transcript.toLowerCase(), ["play"])) {
+  if (playing && userSaid(transcript.toLowerCase(), ["play", "start"])) {
     paused = false;
     processed = true;
   }
@@ -317,14 +347,14 @@ var processSpeech = function(transcript) {
         generateSpeech("To drop your block into place, point your left hand at the screen and flick it down or say drop or down. Try it with this block!");
         content = "<h1>multimodal tetris</h1><h3>To drop your block into place, <br> point your left hand at the <br> screen and flick it down or say <br> drop or down. Try it with this <br> block!</h3> <br>" + tutorialInsts;
       } else if (tutorial == 4) {
+        generateSpeech("To replace your piece with the one in the hold box, say 'hold' or open your left palm towards <br> the screen.");
+        content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold' <br> or open your left palm towards the screen.</h3> <br>" + tutorialInsts;
+      } else if (tutorial == 5) {
         generateSpeech("While you're playing the game, you can ask me 'how many lines' and I will tell you your current score.");
         content = "<h1>multimodal tetris</h1><h3>While you're playing the game, <br> you can ask me 'how many <br> lines' and I will tell you your <br> current score.</h3> <br>" + tutorialInsts;
-      } else if (tutorial == 5) {
-        generateSpeech("To replace your piece with the one in the hold box, say 'hold'.");
-        content = "<h1>multimodal tetris</h1><h3>To replace your piece with the <br> one in the hold box, say 'hold'.</h3> <br>" + tutorialInsts;
       } else if (tutorial == 6) {
-        generateSpeech("You can say 'stop' or 'pause' to pause the game, and 'start' or 'play' to continue playing.");
-        content = "<h1>multimodal tetris</h1><h3>You can say 'stop' or 'pause' <br> to pause the game, and 'start' <br> or 'play' to continue playing.</h3> <br>" + tutorialInsts;
+        generateSpeech("You can say 'stop' or 'pause' to pause the game, and 'start' or 'play' to continue playing. You have completed the tutorial!");
+        content = "<h1>multimodal tetris</h1><h3>You can say 'stop' or 'pause' <br> to pause the game, and 'start' <br> or 'play' to continue playing. <br> You have completed the <br> tutorial!</h3> <br>" + tutorialInsts;
       }
     }
   }
@@ -335,7 +365,7 @@ var processSpeech = function(transcript) {
     piece = makePiece(false, undefined);
   }
 
-  if (playing && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help"])) {
+  if (playing && userSaid(transcript.toLowerCase(), ["hold", "hulk", "hope", "whole", "help", "holt"])) {
     let currShape = piece.getShape();
     piece.setShape(holdShape);
     resetHold();
