@@ -192,12 +192,13 @@ Leap.loop({ frame: function(frame) {
   background.setContent(content);
   if (playing) {
     let header = "<h2>Actions</h2>";
-    let turn = "<h4>Turn clockwise: \"Turn\" or flick finger up</h4>";
+    let turn = "<h4>Turn clockwise: \"Turn\" or flick right hand up</h4>";
     let turnBack = "<h4>Turn counterclockwise: \"Turn back\"</h4>";
     let turn180 = "<h4>Turn 180 desgrees: \"Flip\"</h4>";
-    let drop = "<h4>Drop into place: \"Drop\", \"Down\" or flick finger down</h4>";
+    let drop = "<h4>Drop into place: \"Drop\", \"Down\" or flick left hand down</h4>";
     let askScore = "<h4>Ask for score: \"How many lines?\"</h4>";
-    hints.setContent(header + turn + turnBack + turn180 + drop + askScore);
+    let askHold = "<h4>Replace piece with held piece: \"Hold\"</h4>";
+    hints.setContent(header + turn + turnBack + turn180 + drop + askScore + askHold);
   }
 }}).use('screenPosition', {scale: LEAPSCALE});
 
