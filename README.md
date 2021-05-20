@@ -7,3 +7,12 @@
 4. Have fun!
 
 ** Be sure to run this in Google Chrome and play in a relatively quiet area to ensure that everything works properly.
+
+
+### Table of Contents
+
+All relevant code lives in the app/ folder. 
+app/config.js: Variable intializations for things that appear often such as colours and board size. 
+app/helper.js: Helper functions used primarily in main.js and models.js. Returns appropriate colours for each block shape, handles tile highlighting, generates speech, converts pointing location to the intersecting tile, etc. 
+app/main.js: The main functionality of the system. Contains the loop controlled by Leap frames, handles game and gesture logic, handles speech commands, and controls the tutorial.
+app/models.js: Contains all Backbone models for the app: the Cursor, the Pieces, and the Board.
