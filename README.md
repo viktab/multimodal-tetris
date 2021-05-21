@@ -6,7 +6,7 @@
 3. Run the webapp locally by navigating to the code directory in a terminal and running python -m http.server. Then, navigate to your web browser and go to localhost:8000. Be sure to enable microphone access, and click on the screen to ensure that the system can speak back to you.
 4. Have fun!
 
-** Be sure to run this in Google Chrome and play in a relatively quiet area to ensure that everything works properly. You must also be using python3 to run the code.
+** Be sure to run this in Google Chrome and play in a relatively quiet area to ensure that everything works properly. You must also be using python3 to run the code. Ideally, you should have Google Chrome Version 90.0.4430.212 - the game should still work otherwise, but the system's voice may have a different accent because Google loves to switch that up on us. 
 
 
 ### Table of Contents
